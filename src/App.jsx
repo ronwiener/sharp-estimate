@@ -189,185 +189,46 @@ export default function App() {
         </div>
       </div>
 
-      {/* MOBILE SCROLL CONTEXT CONTAINER */}
-      <div
-        style={{
-          flex: 1,
-          padding: "15px",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* EDIT STATE GRID */}
-        {viewMode === "edit" && (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "15px",
-              backgroundColor: "#fff",
-              padding: "20px",
-              borderRadius: "12px",
-            }}
-          >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-            >
-              <label
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#34495e",
-                }}
-              >
-                Customer Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                placeholder="John Doe"
-                value={customer.name}
-                onChange={handleChange}
-                style={{
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ced4da",
-                  fontSize: "15px",
-                }}
-              />
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-            >
-              <label
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#34495e",
-                }}
-              >
-                Customer Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                placeholder="123 Main St, Fort Lauderdale"
-                value={customer.address}
-                onChange={handleChange}
-                style={{
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ced4da",
-                  fontSize: "15px",
-                }}
-              />
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-            >
-              <label
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#34495e",
-                }}
-              >
-                Scope of Work
-              </label>
-              <textarea
-                name="scopeOfWork"
-                rows="10"
-                placeholder="Describe the services being rendered..."
-                value={customer.scopeOfWork}
-                onChange={handleChange}
-                style={{
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ced4da",
-                  fontSize: "15px",
-                  resize: "none",
-                  fontFamily: "inherit",
-                }}
-              />
-            </div>
-
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "5px" }}
-            >
-              <label
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#34495e",
-                }}
-              >
-                Total Price ($)
-              </label>
-              <input
-                type="number"
-                inputMode="decimal"
-                name="price"
-                placeholder="150.00"
-                value={customer.price}
-                onChange={handleChange}
-                style={{
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: "1px solid #ced4da",
-                  fontSize: "15px",
-                }}
-              />
-            </div>
-
-            <button
-              onClick={() => setViewMode("preview")}
-              style={{
-                padding: "14px",
-                marginTop: "10px",
-                backgroundColor: "#34495e",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                fontWeight: "bold",
-                fontSize: "15px",
-              }}
-            >
-              Review Finished Letter →
-            </button>
-          </div>
-        )}
-
-        {/* COMPACT IMAGE PREVIEW LAYER - SCALED FOR SMALL PHONES */}
+      {/* COMPACT IMAGE PREVIEW LAYER - AUTO-SCALED FOR IPHONE SCREEN POP */}
+      {viewMode === "preview" && (
         <div
           style={{
-            display: viewMode === "preview" ? "block" : "none",
             width: "100%",
-            overflowX: "hidden", // Blocks weird horizontal bounce behavior on iPhones
+            overflow: "hidden",
             backgroundColor: "#ffffff",
             borderRadius: "12px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+            padding: "10px 0",
           }}
         >
+          {/* 
+              This container calculates a dynamic scaling percentage based on the device width.
+              It locks the 700px element perfectly inside a container that fits your screen!
+            */}
           <div
             style={{
               width: "100%",
-              overflowX: "auto",
-              WebkitOverflowScrolling: "touch",
+              overflow: "hidden",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              // Fits exactly into mobile windows without left/right scrolling friction
+              height: `calc(700px * ${typeof window !== "undefined" ? Math.min((window.innerWidth - 30) / 700, 1) : 1})`,
             }}
           >
             <div
               ref={letterRef}
               style={{
-                width: "700px", // Locks target print size aspect metrics
-                margin: "0 auto",
+                width: "700px",
                 backgroundColor: "#ffffff",
                 padding: "40px 35px",
                 boxSizing: "border-box",
                 lineHeight: "1.6",
                 fontSize: "15px",
                 color: "#2c3e50",
+                transform: `scale(${typeof window !== "undefined" ? Math.min((window.innerWidth - 30) / 700, 1) : 1})`,
+                transformOrigin: "top center",
+                flexShrink: 0,
               }}
             >
               {/* Header Identity Layout */}
@@ -504,7 +365,7 @@ export default function App() {
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* NATIVE IPHONE LONG-PRESS OVERLAY INTERACTION DIALOG */}
       {generatedImg && (
