@@ -11,6 +11,8 @@ export default function App() {
   });
 
   const [viewMode, setViewMode] = useState("edit");
+  const [generatedImg, setGeneratedImg] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -25,60 +27,59 @@ export default function App() {
     setCustomer((prev) => ({ ...prev, [name]: value }));
   };
 
-  // High-Resolution Image Generation Engine
-  const downloadImage = async () => {
+  // High-Resolution Image Generation Engine for Mobile Browsers
+  const generateEstimateImage = async () => {
+    setIsProcessing(true);
+    setGeneratedImg(null);
+
     const originalMode = viewMode;
     setViewMode("preview");
 
-    // Give the DOM a moment to paint the document view
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    // Give the DOM a moment to process the view switch safely
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     const element = letterRef.current;
     if (!element) {
       setViewMode(originalMode);
+      setIsProcessing(false);
       return;
     }
 
     try {
+      // Clones a perfect fixed-width sandbox copy offscreen for print resolution accuracy
       const clone = element.cloneNode(true);
       Object.assign(clone.style, {
         position: "absolute",
         top: "-9999px",
         left: "0",
-        width: "750px", // Maintains a robust layout width for consistent rendering bounds
+        width: "700px",
         height: "auto",
         display: "block",
         boxShadow: "none",
         margin: "0",
-        padding: "50px",
+        padding: "40px 30px",
       });
 
       document.body.appendChild(clone);
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       const canvas = await html2canvas(clone, {
-        scale: 2, // Scales up pixel grid for razor-sharp text resolution on high-end smartphone displays
+        scale: 2, // Doubles pixel scale for ultra-crisp mobile display outputs
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
       });
 
       document.body.removeChild(clone);
-
-      // Convert structural canvas into a stream element download link
       const imgData = canvas.toDataURL("image/jpeg", 0.95);
-      const link = document.createElement("a");
-      const safeName = (customer.name || "Customer")
-        .trim()
-        .replace(/[^a-z0-9]/gi, "_");
 
-      link.download = `Sharp_Estimate_${safeName}.jpg`;
-      link.href = imgData;
-      link.click();
+      // Opens the iOS native interaction target modal
+      setGeneratedImg(imgData);
     } catch (err) {
       console.error("Failed to generate estimate image file:", err);
     } finally {
       setViewMode(originalMode);
+      setIsProcessing(false);
     }
   };
 
@@ -128,10 +129,11 @@ export default function App() {
           </div>
 
           <button
-            onClick={downloadImage}
+            onClick={generateEstimateImage}
+            disabled={isProcessing}
             style={{
               padding: "10px 18px",
-              backgroundColor: "#27ae60",
+              backgroundColor: isProcessing ? "#95a5a6" : "#27ae60",
               color: "#fff",
               border: "none",
               borderRadius: "6px",
@@ -140,7 +142,7 @@ export default function App() {
               boxShadow: "0 3px 6px rgba(39,174,96,0.2)",
             }}
           >
-            Save Image
+            {isProcessing ? "Creating..." : "Save Image"}
           </button>
         </div>
 
@@ -337,157 +339,260 @@ export default function App() {
           </div>
         )}
 
-        {/* COMPACT IMAGE PREVIEW LAYER */}
+        {/* COMPACT IMAGE PREVIEW LAYER - SCALED FOR SMALL PHONES */}
         <div
           style={{
             display: viewMode === "preview" ? "block" : "none",
             width: "100%",
-            overflowX: "auto",
+            overflowX: "hidden", // Blocks weird horizontal bounce behavior on iPhones
             backgroundColor: "#ffffff",
             borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
           }}
         >
           <div
-            ref={letterRef}
             style={{
               width: "100%",
-              minWidth: "650px",
-              backgroundColor: "#ffffff",
-              padding: "40px 30px",
-              boxSizing: "border-box",
-              lineHeight: "1.6",
-              fontSize: "15px",
-              color: "#2c3e50",
+              overflowX: "auto",
+              WebkitOverflowScrolling: "touch",
             }}
           >
-            {/* Header Identity Layout */}
             <div
+              ref={letterRef}
               style={{
-                display: "flex",
-                flexDirection: "column", // Stack elements vertically
-                alignItems: "center", // Center elements horizontally
-                justifyContent: "center", // Extra safety centering
-                textAlign: "center", // Center the text lines
-                borderBottom: "2px solid #27ae60",
-                paddingBottom: "15px",
-                marginBottom: "25px",
-                width: "100%", // Fill full sheet width
+                width: "700px", // Locks target print size aspect metrics
+                margin: "0 auto",
+                backgroundColor: "#ffffff",
+                padding: "40px 35px",
+                boxSizing: "border-box",
+                lineHeight: "1.6",
+                fontSize: "15px",
+                color: "#2c3e50",
               }}
             >
-              <div>
-                <h2 style={{ textAlign: "center", margin: 0 }}>
-                  <img
-                    src={imageLogo}
-                    alt="Logo"
-                    style={{
-                      height: "150px",
-                      borderRadius: "12px",
-                      border: "6px solid #27ae60",
-                      padding: "25px",
-                      mixBlendMode: "multiply",
-                    }}
-                  />
-                </h2>
+              {/* Header Identity Layout */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  borderBottom: "2px solid #27ae60",
+                  paddingBottom: "15px",
+                  marginBottom: "25px",
+                  width: "100%",
+                }}
+              >
+                <img
+                  src={imageLogo}
+                  alt="Logo"
+                  style={{
+                    height: "150px",
+                    borderRadius: "12px",
+                    border: "6px solid #27ae60",
+                    padding: "25px",
+                    mixBlendMode: "multiply",
+                  }}
+                />
               </div>
-            </div>
 
-            {/* Target Client Metadata */}
-            <div style={{ marginBottom: "25px" }}>
-              <div
-                style={{
-                  textTransform: "uppercase",
-                  fontSize: "11px",
-                  fontWeight: "bold",
-                  color: "#95a5a6",
-                  marginBottom: "3px",
-                }}
-              >
-                Prepared For:
+              {/* Target Client Metadata */}
+              <div style={{ marginBottom: "25px" }}>
+                <div
+                  style={{
+                    textTransform: "uppercase",
+                    fontSize: "11px",
+                    fontWeight: "bold",
+                    color: "#95a5a6",
+                    marginBottom: "3px",
+                  }}
+                >
+                  Prepared For:
+                </div>
+                <div
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    marginBottom: "2px",
+                  }}
+                >
+                  {customer.name || "[Customer Name]"}
+                </div>
+                <div style={{ color: "#555" }}>
+                  {customer.address || "[Property Address]"}
+                </div>
               </div>
-              <div
-                style={{
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                  marginBottom: "2px",
-                }}
-              >
-                {customer.name || "[Customer Name]"}
-              </div>
-              <div style={{ color: "#555" }}>
-                {customer.address || "[Property Address]"}
-              </div>
-            </div>
 
-            {/* Scope Layout Box */}
-            <div style={{ marginBottom: "25px" }}>
-              <div
-                style={{
-                  color: "#27ae60",
-                  borderBottom: "1px solid #eee",
-                  paddingBottom: "4px",
-                  marginBottom: "10px",
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                }}
-              >
-                Scope of Work
+              {/* Scope Layout Box */}
+              <div style={{ marginBottom: "25px" }}>
+                <div
+                  style={{
+                    color: "#27ae60",
+                    borderBottom: "1px solid #eee",
+                    paddingBottom: "4px",
+                    marginBottom: "10px",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Scope of Work
+                </div>
+                <div
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    backgroundColor: "#fafbfc",
+                    padding: "15px",
+                    borderRadius: "6px",
+                    border: "1px solid #eaedf1",
+                    minHeight: "120px",
+                    color: "#34495e",
+                  }}
+                >
+                  {customer.scopeOfWork || "[No scope defined yet...]"}
+                </div>
               </div>
+
+              {/* Financial Ledger Highlight Card */}
               <div
                 style={{
-                  whiteSpace: "pre-wrap",
-                  backgroundColor: "#fafbfc",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  backgroundColor: "#ebf7ee",
                   padding: "15px",
                   borderRadius: "6px",
-                  border: "1px solid #eaedf1",
-                  minHeight: "120px",
-                  color: "#34495e",
+                  border: "1px solid #c3e6cb",
+                  marginBottom: "25px",
                 }}
               >
-                {customer.scopeOfWork || "[No scope defined yet...]"}
+                <span
+                  style={{
+                    fontSize: "15px",
+                    fontWeight: "bold",
+                    color: "#155724",
+                  }}
+                >
+                  Total:
+                </span>
+                <span
+                  style={{
+                    fontSize: "22px",
+                    fontWeight: "bold",
+                    color: "#27ae60",
+                  }}
+                >
+                  $
+                  {customer.price
+                    ? parseFloat(customer.price).toFixed(2)
+                    : "0.00"}
+                </span>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  color: "#7f8c8d",
+                  fontSize: "13px",
+                }}
+              >
+                <span>Quote is valid for 7 days.</span>
+                <strong>Date: {currentDate}</strong>
               </div>
             </div>
-
-            {/* Financial Ledger Highlight Card */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor: "#ebf7ee",
-                padding: "15px",
-                borderRadius: "6px",
-                border: "1px solid #c3e6cb",
-                marginBottom: "25px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "15px",
-                  fontWeight: "bold",
-                  color: "#155724",
-                }}
-              >
-                Total:
-              </span>
-              <span
-                style={{
-                  fontSize: "22px",
-                  fontWeight: "bold",
-                  color: "#27ae60",
-                }}
-              >
-                $
-                {customer.price
-                  ? parseFloat(customer.price).toFixed(2)
-                  : "0.00"}
-              </span>
-            </div>
-
-            <p style={{ marginBottom: "35px" }}>Quote is valid for 7 days.</p>
           </div>
         </div>
       </div>
+
+      {/* NATIVE IPHONE LONG-PRESS OVERLAY INTERACTION DIALOG */}
+      {generatedImg && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.85)",
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "14px",
+              padding: "20px",
+              width: "100%",
+              maxWidth: "360px",
+              textAlign: "center",
+              boxSizing: "border-box",
+            }}
+          >
+            <span style={{ fontSize: "24px" }}>☝️</span>
+            <h3
+              style={{
+                margin: "10px 0 5px 0",
+                fontSize: "16px",
+                color: "#2c3e50",
+              }}
+            >
+              Save to Your iPhone
+            </h3>
+            <p
+              style={{
+                margin: "0 0 15px 0",
+                fontSize: "13px",
+                color: "#7f8c8d",
+                lineHeight: "1.4",
+              }}
+            >
+              <strong>Press and hold down</strong> on the letter image below,
+              then choose <strong>"Save to Photos"</strong> or{" "}
+              <strong>"Copy"</strong>.
+            </p>
+
+            <div
+              style={{
+                border: "2px solid #27ae60",
+                borderRadius: "8px",
+                overflow: "hidden",
+                maxHeight: "320px",
+                overflowY: "auto",
+                marginBottom: "15px",
+              }}
+            >
+              <img
+                src={generatedImg}
+                alt="Estimate Output File"
+                style={{ width: "100%", display: "block" }}
+              />
+            </div>
+
+            <button
+              onClick={() => setGeneratedImg(null)}
+              style={{
+                width: "100%",
+                padding: "12px",
+                backgroundColor: "#e74c3c",
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                fontWeight: "bold",
+                fontSize: "14px",
+              }}
+            >
+              Close Window
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
