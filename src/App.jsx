@@ -495,17 +495,23 @@ export default function App() {
                       : "0.00"}
                   </span>
                 </div>
-
                 <div
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
+                    alignItems: "flex-end",
                     color: "#7f8c8d",
                     fontSize: "13px",
+                    lineHeight: "1.4",
                   }}
                 >
-                  <span>Quote is valid for 7 days.</span>
-                  <strong>Date: {currentDate}</strong>
+                  <div>
+                    <div>Estimate valid for 7 days.</div>
+                    <strong>Text "YES" to accept this estimate.</strong>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <strong>Date: {currentDate}</strong>
+                  </div>
                 </div>
               </div>
             </div>
