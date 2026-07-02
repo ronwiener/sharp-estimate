@@ -303,13 +303,12 @@ export default function App() {
                   color: "#34495e",
                 }}
               >
-                Total Price ($)
+                Total Price / Terms
               </label>
               <input
-                type="number"
-                inputMode="decimal"
+                type="text"
                 name="price"
-                placeholder="150.00"
+                placeholder="e.g., 150.00 or 50.00 deposit"
                 value={customer.price}
                 onChange={handleChange}
                 style={{
@@ -480,21 +479,23 @@ export default function App() {
                       color: "#155724",
                     }}
                   >
-                    Total:
+                    Total Cost:
                   </span>
                   <span
                     style={{
-                      fontSize: "22px",
+                      fontSize: "18px",
                       fontWeight: "bold",
                       color: "#27ae60",
+                      textAlign: "right",
+                      maxWidth: "70%",
+                      wordBreak: "break-word",
                     }}
                   >
-                    $
-                    {customer.price
-                      ? parseFloat(customer.price).toFixed(2)
-                      : "0.00"}
+                    {customer.price || "$0.00"}
                   </span>
                 </div>
+
+                {/* Footer Disclosures and Date */}
                 <div
                   style={{
                     display: "flex",
