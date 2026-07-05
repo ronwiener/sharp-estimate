@@ -57,7 +57,7 @@ export default function App() {
         display: "block",
         boxShadow: "none",
         margin: "0",
-        padding: "40px 30px",
+        padding: "40px 35px 50px 35px",
       });
 
       document.body.appendChild(clone);
@@ -357,7 +357,7 @@ export default function App() {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "flex-start",
-                height: `calc(700px * ${typeof window !== "undefined" ? Math.min((window.innerWidth - 30) / 700, 1) : 1})`,
+                height: `calc(740px * ${typeof window !== "undefined" ? Math.min((window.innerWidth - 30) / 700, 1) : 1})`,
               }}
             >
               <div
@@ -365,7 +365,7 @@ export default function App() {
                 style={{
                   width: "700px",
                   backgroundColor: "#ffffff",
-                  padding: "40px 35px",
+                  padding: "40px 35px 50px 35px",
                   boxSizing: "border-box",
                   lineHeight: "1.6",
                   fontSize: "15px",
@@ -469,7 +469,7 @@ export default function App() {
                     padding: "15px",
                     borderRadius: "6px",
                     border: "1px solid #c3e6cb",
-                    marginBottom: "25px",
+                    marginBottom: "3px",
                   }}
                 >
                   <span
@@ -504,11 +504,16 @@ export default function App() {
                     color: "#7f8c8d",
                     fontSize: "13px",
                     lineHeight: "1.4",
+                    marginTop: "30px",
                   }}
                 >
                   <div>
-                    <div>Estimate valid for 7 days.</div>
-                    <strong>Text "YES" to accept this estimate.</strong>
+                    <div style={{ marginBottom: "2px" }}>
+                      Estimate valid for 7 days.
+                    </div>
+                    <strong style={{ color: "#2c3e50" }}>
+                      Text "YES" to accept this estimate.
+                    </strong>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <strong>Date: {currentDate}</strong>
